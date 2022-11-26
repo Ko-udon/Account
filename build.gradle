@@ -26,8 +26,8 @@ dependencies {
     implementation 'org.redisson:redisson:3.17.1'
 
     //embedded redis
-    implementation('it.ozimov:embedded-redis:0.7.3'){
-        exclude group: "org.slf4j", module:"slf4j-simple"
+    implementation('it.ozimov:embedded-redis:0.7.3') {
+        exclude group: "org.slf4j", module: "slf4j-simple"
     }
 
     compileOnly 'org.projectlombok:lombok'
