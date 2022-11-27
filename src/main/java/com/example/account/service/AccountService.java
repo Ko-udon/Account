@@ -18,13 +18,16 @@ public class AccountService {
     public void createAccount(){
         Account account= Account.builder()
                         .accountNumber("40000")
-                                .accountStatus(AccountStatus.In_USE)
+                                .accountStatus(AccountStatus.IN_USE)
                                         .build();
         accountRepository.save(account);
     }
 
     @Transactional
     public Account getAccount(Long id){
+        if(id<0){
+            throw new RuntimeException("Minus");
+        }
         return accountRepository.findById(id).get();
     }
 }
