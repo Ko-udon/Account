@@ -24,6 +24,7 @@ public class AccountDto {
         return AccountDto.builder()
                 .userId(account.getAccountUser().getId())
                 .accountNumber(account.getAccountNumber())
+                .balance(account.getBalance())
                 .registeredAt(account.getRegisterdAt())
                 .unRegisteredAt(account.getUnRegisterdAt())
                 .build();
