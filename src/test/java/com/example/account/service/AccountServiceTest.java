@@ -219,7 +219,7 @@ class AccountServiceTest {
 
 
         //then
-        assertEquals(ErrorCode.BALANCE_NOT_EMPTY,exception.getErrorCode());
+        assertEquals(ErrorCode.ACCOUNT_ALREADY_UNREGISTERED,exception.getErrorCode());
 
 
     }
