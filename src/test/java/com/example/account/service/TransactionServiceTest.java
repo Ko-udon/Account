@@ -54,9 +54,9 @@ class TransactionServiceTest {
     void successUseBalance() {
         //given
         AccountUser user=AccountUser.builder()
-                .id(12L)
                 .name("Pobi")
                 .build();
+        user.setId(12L);
         given(accountUserRepository.findById(anyLong()))
                 .willReturn(Optional.of(user));
         Account account = Account.builder()
@@ -114,10 +114,9 @@ class TransactionServiceTest {
     void useBalance_AccountNotFound() {
         //given
         AccountUser user=AccountUser.builder()
-                .id(12L)
                 .name("Pobi")
                 .build();  //변수화
-
+        user.setId(12L);
         given(accountUserRepository.findById(anyLong()))
                 .willReturn(Optional.of(user));
 
@@ -141,15 +140,13 @@ class TransactionServiceTest {
     void useBalance_userUnMatch() {
         //given
         AccountUser Pobi = AccountUser.builder()
-                .id(12L)
                 .name("Pobi")
                 .build();  //변수화
-
+        Pobi.setId(12L);
         AccountUser Marry = AccountUser.builder()
-                .id(13L)
                 .name("Marry")
                 .build();  //변수화
-
+        Marry.setId(13L);
         given(accountUserRepository.findById(anyLong()))  //확이 계좌 소유주는 pobi
                 .willReturn(Optional.of(Pobi));
 
@@ -174,10 +171,9 @@ class TransactionServiceTest {
     void deleteAccountFailed_balanceNotEmpty() {
         //given
         AccountUser Pobi=AccountUser.builder()
-                .id(12L)
                 .name("Pobi")
                 .build();  //변수화
-
+        Pobi.setId(12L);
 
         given(accountUserRepository.findById(anyLong()))  //소유주는 pobi로 같지만
                 .willReturn(Optional.of(Pobi));
@@ -206,9 +202,9 @@ class TransactionServiceTest {
     void exceedAmount_UseBalance() {
         //given
         AccountUser user=AccountUser.builder()
-                .id(12L)
                 .name("Pobi")
                 .build();
+        user.setId(12L);
         given(accountUserRepository.findById(anyLong()))
                 .willReturn(Optional.of(user));
         Account account = Account.builder()
@@ -237,10 +233,9 @@ class TransactionServiceTest {
     void saveFailedUseTransaction() {
         //given
         AccountUser user=AccountUser.builder()
-                .id(12L)
                 .name("Pobi")
                 .build();
-
+        user.setId(12L);
         Account account = Account.builder()
                 .accountUser(user)
                 .accountStatus(AccountStatus.IN_USE)
@@ -279,10 +274,9 @@ class TransactionServiceTest {
     void successCancelBalance() {
         //given
         AccountUser user=AccountUser.builder()
-                .id(12L)
                 .name("Pobi")
                 .build();
-
+        user.setId(12L);
         Account account = Account.builder()
                 .accountUser(user)
                 .accountStatus(AccountStatus.IN_USE)
@@ -337,10 +331,9 @@ class TransactionServiceTest {
     void cancelTransaction_AccountNotFound() {
         //given
         AccountUser user=AccountUser.builder()
-                .id(12L)
                 .name("Pobi")
                 .build();  //변수화
-
+        user.setId(12L);
         given(transactionRepository.findByTransactionId(anyString()))
                 .willReturn(Optional.of(Transaction.builder()
                         .transactionType(USE)
@@ -394,22 +387,22 @@ class TransactionServiceTest {
     void cancelTransaction_TransactionAccountUnMatch() {
         //given
         AccountUser user=AccountUser.builder()
-                .id(12L)
                 .name("Pobi")
                 .build();  //변수화
-
+        user.setId(12L);
         Account account = Account.builder()
-                .id(1L)
                 .accountUser(user)
                 .accountStatus(AccountStatus.IN_USE)
                 .balance(10000L)
                 .accountNumber("1000000012").build();
+        account.setId(1L);
+
         Account accountNotUse = Account.builder()
-                .id(2L)
                 .accountUser(user)
                 .accountStatus(AccountStatus.IN_USE)
                 .balance(10000L)
                 .accountNumber("1000000013").build();
+        accountNotUse.setId(2L);
 
         Transaction transaction=Transaction.builder()
                 .account(account)
@@ -448,16 +441,15 @@ class TransactionServiceTest {
     void cancelTransaction_CancelMustFully() {
         //given
         AccountUser user=AccountUser.builder()
-                .id(12L)
                 .name("Pobi")
                 .build();  //변수화
-
+        user.setId(12L);
         Account account = Account.builder()
-                .id(1L)
                 .accountUser(user)
                 .accountStatus(AccountStatus.IN_USE)
                 .balance(10000L)
                 .accountNumber("1000000012").build();
+        account.setId(1L);
 
 
         Transaction transaction=Transaction.builder()
@@ -495,16 +487,16 @@ class TransactionServiceTest {
     void cancelTransaction_TooOldOrder() {
         //given
         AccountUser user=AccountUser.builder()
-                .id(12L)
                 .name("Pobi")
                 .build();  //변수화
+        user.setId(12L);
 
         Account account = Account.builder()
-                .id(1L)
                 .accountUser(user)
                 .accountStatus(AccountStatus.IN_USE)
                 .balance(10000L)
                 .accountNumber("1000000012").build();
+        account.setId(1L);
 
 
         Transaction transaction=Transaction.builder()
@@ -538,6 +530,64 @@ class TransactionServiceTest {
 
     }
 
+    @Test
+    void successQueryTransaction() {
+        //given
+        AccountUser user=AccountUser.builder()
+                .name("Pobi")
+                .build();  //변수화
+        user.setId(12L);
+        Account account = Account.builder()
+                .accountUser(user)
+                .accountStatus(AccountStatus.IN_USE)
+                .balance(10000L)
+                .accountNumber("1000000012").build();
+        account.setId(1L);
+
+        Transaction transaction=Transaction.builder()
+                .account(account)
+                .transactionType(USE)
+                .transactionResultType(S)
+                .transactionId("transactionId")
+                .transactedAt(LocalDateTime.now().minusYears(1).minusDays(1))
+                .amount(CANCEL_AMOUNT)
+                .balanceSnapshot(9000L)
+                .build();
+
+        given(transactionRepository.findByTransactionId(anyString()))
+                .willReturn(Optional.of(transaction));
+        //when
+        TransactionDto transactionDto = transactionService.queryTransaction("trxId");
+
+        //then
+        assertEquals(USE,transactionDto.getTransactionType());
+        assertEquals(S,transactionDto.getTransactionResultType());
+        assertEquals(CANCEL_AMOUNT,transactionDto.getAmount());
+        assertEquals("transactionId",transactionDto.getTransactionId());
+
+    }
+
+    @Test
+    @DisplayName("원거래 없음 - 거래 조회 실패")
+    void queryTransaction_TransactionNotFound() {
+        //given
+
+
+        given(transactionRepository.findByTransactionId(anyString()))
+                .willReturn(Optional.empty());
+
+
+
+        //when
+        AccountException exception=assertThrows(AccountException.class,
+                ()->transactionService.queryTransaction("transactionId"));
+
+
+        //then
+        assertEquals(ErrorCode.TRANSACTION_NOT_FOUND,exception.getErrorCode());
+
+
+    }
 
 
 
